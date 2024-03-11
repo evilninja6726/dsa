@@ -1,0 +1,773 @@
+Topic - LinkedList
+
+Arrays - Contigious location
+LinkedList - Non contigious location
+
+Advantages 
+1. drop the idea of contigious location so as to insert/delete from anywhere efficiently
+2. no need to preallocate the space unlike the arrays
+
+**********************************************************************************************************
+
+10->20->30->40 
+so every node contains the data and address of next node, and next of last node is always null   (Singly LinkedList)
+
+***************************************************************************************************************************
+
+Creation of Singly LinkedList
+
+public class SLNode {
+    int data;
+    SLNode next;   // self refrential Data Structure
+
+    public SLNode(int data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+****************************************************************************
+
+Print LinkedList
+
+Loop while head!=null
+print one by one and do head=head.next
+
+public static void main(String[] args) {     // Time - O(n) Space - O(1)
+        SLNode slNode = new SLNode(10);
+        slNode.next = new SLNode(20);
+        slNode.next.next = new SLNode(30);
+        while (slNode != null) {
+            System.out.print(slNode.data + " ");
+            slNode = slNode.next;
+        }
+    }
+	
+*************************************************************************************
+
+Print LinkedList Recursively
+
+we have to print the data and call recursive function for next of it
+base condition will be if head==null
+
+public static void print(SLNode head) {      // Time - O(n) Space - O(n)
+        if (head == null) {
+            return;
+        }
+        System.out.print(head.data + " ");
+        print(head.next);
+    }
+
+***************************************************************************************************
+
+Insertion at beginning
+
+make a new node with given value
+point new node's next to given head and return new node
+
+public static SLNode insert(SLNode head, int newHeadData) {     // Time - O(1) Space - O(1)
+        SLNode newHead = new SLNode(newHeadData);
+        newHead.next = head;
+        return newHead;
+    }
+	
+***************************************************************************************************
+
+Insert at End
+
+if head is null then we have to create a new node and return it
+if head is not null then we iterate the linkedlist till the last node 
+if we are at last node then we set its next to new node and return the head
+
+public static SLNode insert(SLNode head, int newNodeData) {      // Time - O(n) Space - O(1)
+        if (head == null) {
+            return new SLNode(newNodeData);
+        }
+        SLNode curr = head;
+        while (curr.next != null) {
+            curr = curr.next;
+        }
+        curr.next = new SLNode(newNodeData);
+        return head;
+    }
+
+**************************************************************************************************
+
+Deletion at beginning
+
+if there is single node or 0 node then after deletion there will be no node so return null
+if there is list of 2 or more nodes then return next of head
+
+public static SLNode delete(SLNode head) {       // Time - O(1) Space - O(1)
+        if (head == null || head.next == null) {
+            return null;
+        }
+        return head.next;
+    }
+	
+****************************************************************************************************
+
+Deletion at end
+
+if there is single node or 0 node then after deletion there will be no node so return null
+if there is 2 or more nodes then iterate till the 2nd last node and set its next to null
+
+public static SLNode delete(SLNode head) {       // Time - O(n) Space - O(1)
+        if (head == null || head.next == null) {
+            return null;
+        }
+        SLNode curr = head;
+        while (curr.next.next != null) {
+            curr = curr.next;
+        }
+        curr.next = null;
+        return head;
+    }
+	
+**********************************************************************************************************************************************
+
+Insert at specific position
+
+if position is less than one then we can't insert so return head
+if position is 1 then we have to add at beginning explained above
+if position is > size if list+1 we have to return head since we can't add
+now to add a specific position suppose 4 we have to iterate loop 4-2 times so pointer will come at position-1 
+from there add the node 
+how to add
+1st do new node's next to curr's next then curr's next to new node
+
+public static SLNode insert(SLNode head, int position, int newNodeData) {   // Time - O(n) Space - O(1)
+        if (position < 1) {    // checks for negative positions which are invalid
+            return head;
+        }
+        SLNode newNode = new SLNode(newNodeData);
+        if (position == 1) {     // insert at beginning
+            newNode.next = head;
+            return newNode;
+        }
+        SLNode curr = head;
+        for (int i = 0; i < position - 2 && curr != null; i++) {    // at the end of loop either we are at one before out position or null
+            curr = curr.next;
+        }
+        if (curr == null) {    // it means the position is greater than the list+1
+            return head;
+        }
+        newNode.next = curr.next;   // insertion at position
+        curr.next = newNode;
+        return head;
+    }
+	
+**********************************************************************************************************************************************
+
+Search in the LinkedList
+
+1. Iterative
+
+Iterate the list if we fount we return its position if we didn't found return -1
+
+
+public static int search(SLNode head, int item) {        // Time - O(n) Space - O(1)
+        if (head == null || (head.data != item && head.next == null)) {      // check if there is no data in the list or only single data which is not equals to item
+            return -1;
+        }
+        int position = 1;
+        while (head != null) {
+            if (head.data == item) {     // at any position if we found item
+                return position;
+            }
+            head = head.next;
+            position++;
+        }
+        return -1;     // if we haven't found item so far
+    }
+	
+2. Recursive
+
+it is bit tricky, first when it can return -1, when head is null
+if suppose 1st element is item then we return 1;
+if 2nd is item then we return 2;
+so lets suppose item is at 2nd position so in recursion we go from 2nd position to 1st so 2nd position return 1 and 1st position return 1 hence we get result 2
+so if item is found we simply return 1 since previous calls can add the total positions
+e.g, item is present at 5, so 5th position call return 1 4th return 1 3rd return 1 and so on and final caller will get 5 as output
+
+case when item is not present 
+at last call we will call for null and it will return -1
+so we need not to change our condition if we are getting -1 for any call
+
+public static int searchRec(SLNode head, int item) {      // Time - O(n) Space - O(n)
+        if (head == null) {          // if there is no data in list or item is not found
+            return -1;
+        }
+        if (head.data == item) {     // if found we return 1 since every call will increase the position
+            return 1;
+        } else {
+            int res = searchRec(head.next, item);
+            return (res == -1) ? -1 : res + 1;    // if item is not found we were getting -1 so we will keep it as it is if we are getting data we will increase its value to increase the position
+        }
+    }
+	
+**********************************************************************************************************************************************************************************************************
+
+Doubly LinkedList
+
+One difference is every node contains data and next reference along with previous node reference
+
+head's prev points to null and last node's next points to null
+
+public class DLNode {
+    int data;
+    DLNode prev;
+    DLNode next;
+
+    public DLNode(int data) {
+        this.data = data;
+        this.prev = null;
+        this.next = null;
+    }
+}
+
+********************************************************************************************************
+
+Advantages and Disadvantages of Doubly LinkedList
+
+Advantages
+
+1. Main Advantage is, we can traverse in both direction
+2. Deletion can be done in O(1) Time if given reference to it
+3. Insert/Delete before a given Node can be done in O(1)
+4. Insert/Delete at both end can be done in O(1) time by maintaining a tail pointer
+
+Disadvantages
+
+1. Complex code
+2. Extra space for prev pointer
+
+*******************************************************************************************************
+
+Insertion at beginning of a Doubly LinkedList
+
+Almost similar to Insertion at beginning of a singly linkedlist
+
+if list is null return new Node with data
+if there is data then 1st set head's prev to new node and then set new node's next to head
+then return new node
+
+public static DLNode insert(DLNode head, int newNodeData) {        // Time - O(1) Space - O(1)
+        if (head == null) {
+            return new DLNode(newNodeData);
+        }
+        DLNode newhead = new DLNode(newNodeData);
+        head.prev = newhead;
+        newhead.next = head;
+        return newhead;
+    }
+	
+*********************************************************************************************************
+
+Reverse a Doubly LinkedList
+
+It is bit tricky we need two pointers
+base cases if list contains 0 or 1 node return head
+take two pointers one current one previous
+previous as the name suggest hold the previous node and current will hold current node
+set previous to null and current to head
+we have to swap the pointers in actual
+steps to swap are important 
+1. set current's previous to current's next
+2. set current's next to previous pointer which we set it to null
+3. move previous pointer one step ahead that is current
+4. make current one step ahead which is now current's previous (step 2)
+repeat this step till current becomes null
+when current becomes null then previous pointer is our new head
+
+public static DLNode reverse(DLNode head) {            // Time - O(n) Space - O(1)
+        if (head == null || head.next == null) {
+            return head;
+        }
+        DLNode prevPointer = null;
+        DLNode curr = head;
+        while (curr != null) {
+            curr.prev = curr.next;           // making current's previous to current's next
+            curr.next = prevPointer;           // current's next to previous pointer
+            prevPointer = curr;              //move previous one step ahead
+            curr = curr.prev;             // make current one step ahead
+        }
+        return prevPointer;                //this is our new head
+    }
+	
+************************************************************************************************************
+
+Deletion at beginning in Doubly LinkedList
+
+It is quite simple and same as singly linked-list
+one more step is we have to set new head's previous to null rest steps are same
+
+public static DLNode delete(DLNode head) {        // Time - O(1) Space - O(1)
+        if (head == null || head.next == null) {
+            return null;
+        }
+        head.next.prev = null;
+        return head.next;
+    }
+	
+************************************************************************************************************
+
+Deletion at end of Doubly LinkedList
+
+It is also similar to Deletion in Singly LinkedList
+one difference is we can go till last node and at that we have to set its previous's next to null
+
+public static DLNode delete(DLNode head) {          // Time - O(n) Space - O(1)
+        if (head == null || head.next == null) {
+            return null;
+        }
+        DLNode curr = head;
+        while (curr.next != null) {
+            curr = curr.next;
+        }
+        curr.prev.next = null;
+        return head;
+    }
+	
+************************************************************************************************************
+
+Insertion at end of Doubly LinkedList
+
+it is also similar to Insertion in Singly LinkedList
+at the end make new node and sets current's next to new node and new node's previous to current
+
+ public static DLNode insert(DLNode head, int newNodeData) {                // Time - O(n) Space - O(1)
+        if (head == null) {
+            return new DLNode(newNodeData);
+        }
+        DLNode curr = head;
+        while (curr.next != null) {
+            curr = curr.next;
+        }
+        DLNode newNode = new DLNode(newNodeData);
+        curr.next = newNode;
+        newNode.prev = curr;
+        return head;
+    }
+	
+*************************************************************************************************************
+
+Singly Circular LinkedList
+
+The only difference is the last node is connected to first node apart from that it is singly linkedlist
+Class structure is same as singly linkedlist
+
+public class SLNode {
+    int data;
+    SLNode next;
+
+    public SLNode(int data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+**************************************************************************************************************
+
+Circular LinkedList 
+Advantage and Disadvantages
+
+Advantages
+
+1. We can traverse the whole list from any node
+2. Implementation of algorithms like round-robin
+3. We can insert at beginning/end by just maintaining one tail reference
+
+Disadvantages
+
+1. Implementation of operations becomes complex
+
+***************************************************************************************************************************************
+
+Circular LinkedList Traversal
+
+maintain a curr pointer so when curr's next is head then we have to break the loop and also print last element outside the loop
+
+public static void print(SCLNode head) {          // Time - O(n) Space - O(1)
+        SCLNode curr = head;
+        while (curr.next != head) {
+            System.out.print(curr.data + "->");
+            curr = curr.next;
+        }
+        System.out.println(curr.data);
+    }
+	
+***************************************************************************************************************************************
+
+Insertion at beginning of Circular LinkedList
+
+it is same as insertion in singly linked-list just the change is we have to make last node points to new node
+
+public static SCLNode insert(SCLNode head, int newNodeData) {           // Time - O(n) Space - O(1)
+        if (head == null) {
+            SCLNode newNode = new SCLNode(newNodeData);      // when head is null return new node with its next as itself
+            newNode.next = newNode;
+            return newNode;
+        }
+        SCLNode newNode = new SCLNode(newNodeData);
+        newNode.next = head;                      // set new node's next to old head
+        SCLNode curr = head;
+        while (curr.next != head) {           // go to last node
+            curr = curr.next;
+        }
+        curr.next = newNode;                 // last node's next to new node
+        return newNode;
+    }
+	
+This can be done in O(1) time as well if modification of data is allowed
+
+if head is null thrn logic is same
+if not null then first we create a new node with data as head's data
+then we points new node to current head's next
+suppose we had 10->20->30   so now we have one more node with data 10 pointing to 20
+so we have two 10 node pointing to 20 so we will make current is x and let it point to new node which is 10 
+so ultimately we get  x->10->20->30 
+
+public static SCLNode insertEff(SCLNode head, int newNodeData) {    // Time - O(1) Space - O(1)
+        if (head == null) {
+            SCLNode newNode = new SCLNode(newNodeData);        // when head is null return new node with its next as itself
+            newNode.next = newNode;
+            return newNode;
+        }
+        SCLNode newNode = new SCLNode(head.data);    // make new node with head's data
+        newNode.next = head.next;      // let it make our 2nd element by pointing it to heads next
+        head.data = newNodeData;       // change the head's data to new data
+        head.next = newNode;           // make head points to our 2nd element which is our pseudo head
+        return head;
+    }
+
+***********************************************************************************************************************************
+
+Insert at End of Circular LinkedList
+
+it is similar to insert at beginning just the change is instead of returning new node we return old head
+
+public static SCLNode insert(SCLNode head, int newNodeData) {      // Time - O(n) Space - O(1)
+        if (head == null) {
+            SCLNode newNode = new SCLNode(newNodeData);
+            newNode.next = newNode;
+            return newNode;
+        }
+        SCLNode newNode = new SCLNode(newNodeData);
+        SCLNode curr = head;
+        while (curr.next != head) {
+            curr = curr.next;
+        }
+        curr.next = newNode;
+        newNode.next = head;
+        return head;
+    }
+	
+It can also be done in O(1) same as above but instead returning head we return new node
+
+public static SCLNode insertEff(SCLNode head, int newNodeData) {    // Time - O(1) Space - O(1)
+        if (head == null) {
+            SCLNode newNode = new SCLNode(newNodeData);
+            newNode.next = newNode;
+            return newNode;
+        }
+        SCLNode newNode = new SCLNode(head.data);
+        newNode.next = head.next;
+        head.data = newNodeData;
+        head.next = newNode;
+        return newNode;
+    }
+	
+*******************************************************************************************************************************
+
+Delete the beginning of Circular LinkedList
+
+It is similar to deletion at beginning just do last pointer points to head's next
+
+public static SCLNode delete(SCLNode head) {          // Time - O(n) Space - O(1)
+        if (head == null || head.next == head) {
+            return null;
+        }
+        SCLNode curr = head;
+        while (curr.next != head) {
+            curr = curr.next;
+        }
+        curr.next = head.next;
+        return head.next;
+    }
+	
+It can also be done in O(1) time
+suppose we have 10->20->30
+so first make head as head's next so we have 20->20->30
+now make head's next to head's next's next so we have 20->30
+
+public static SCLNode deleteEff(SCLNode head) {          // Time - O(n) Space - O(1)
+        if (head == null || head.next == head) {
+            return null;
+        }
+        head.data = head.next.data;
+        head.next = head.next.next;
+        return head;
+    }
+	
+***************************************************************************************************************************************************
+
+Delete kth node of Circular LinkedList
+
+if head is null then we have to return null
+if head's next is null then list contains 1 element also ensure k is 1 so return null
+if k is one but list contains more than 1 element we use delete the beginning explained above
+final case is if list contains more than 1 element and k is greater than 1 then we iterate the loop k-2 times to come to previous of kth node
+when we reach previous of kth node we set previous node's next to kth node's next
+
+public static SCLNode delete(SCLNode head, int k) {        // Time - O(n) Space - O(1)
+        if (head == null) {        // if we list don't have elements
+            return null;
+        }
+        if (head.next == head && k == 1) {     // if list contains 1 element and that must be deleted
+            return null;
+        } 
+        if (k == 1) {                            // if 1st element must be deleted we call delete at beginning
+            head.data = head.next.data;
+            head.next = head.next.next;
+            return head;
+        }
+        SCLNode curr = head;
+        for (int i = 0; i < k - 2; i++) {   // comes previous to kth node 
+            curr = curr.next;
+        }
+        curr.next = curr.next.next;        final setup to ignore kth
+        return head;
+    }
+	
+*******************************************************************************************************************************************************
+
+Circular Doubly LinkedList
+
+1st node's previous points to last node
+last node's next points to 1st node
+
+Advantages
+
+1. We get all advantages of Doubly LinkedList and Circular LinkedList
+2. We can access the last node in constant time without maintaining the tail pointer
+
+**********************************************************************************************************************************
+
+Sorted Insert
+
+We are given a singly linked-list
+we have to insert an element x to its correct position
+
+10->20->30->40  we have to insert 35 so that list will be 10->20->30->35->40
+
+if head is null then we have to return new head with data equals x
+take two pointers curr and prev curr points to head and prev is to null
+we have make curr as closest larger or equal to x and prev smaller closest to x
+iterate the loop when we come out of the loop then we have to insert x between curr and prev
+one case here is if x is smaller than head then loop will not iterate and prev is null then we make prev as x and return it
+otherwise we make a new node insert in between and return head
+
+public static SLNode insert(SLNode head, int x) {       // Time - O(n) Space - O(1)
+        if (head == null) {
+            return new SLNode(x);
+        }
+        SLNode curr = head;
+        SLNode prev = null;
+        while (curr != null && curr.data < x) {
+            prev = curr;
+            curr = curr.next;
+        }
+        if (prev == null) {         // when x will come as first element
+            prev = new SLNode(x);
+            prev.next = head;
+            return prev;
+        }
+        SLNode newNode = new SLNode(x);
+        newNode.next = curr;
+        prev.next = newNode;
+        return head;
+    }
+	
+**************************************************************************************************************************************
+
+Middle of LinkedList
+
+For the even nodes return later one e.g, 10->20->30->40 return 30
+
+Take two pointers slow and fast and in each iteration slow moves 1 step and fast moves 2 steps
+at the end slow is our answer
+in these iteration if even nodes, fast will reach till null and on odd nodes, it will reach till last node
+so we have to iterate till fast is not null as well as fast's next is not null
+when iteration ends slow is our answer
+
+public static int print(SLNode head) {          // Time - O(n) Space - O(1)
+        if (head == null) {
+            return -1;
+        }
+        SLNode slow = head;
+        SLNode fast = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow.data;
+    }
+	
+****************************************************************************************************************************
+
+Nth node from Ending
+
+Naive Method(Using Length of LinkedList)
+
+First calculate the length of LinkedList and then iterate the loop till length-n times
+and the current pointer after all the iterations is our result
+
+public static int nthNode(SLNode head, int n) {       // Time - O(n) Space - O(1)
+        if (head == null || n < 1) { 
+            return -1;
+        }
+        SLNode curr = head;
+        int length = 0;
+        while (curr != null) {
+            length++;
+            curr = curr.next;
+        }
+        if (n > length) {
+            return -1;
+        }
+        curr = head;
+        for (int i = 0; i < length - n; i++) {
+            curr = curr.next;
+        }
+        return curr.data;
+    }
+	
+Efficient Method(Using 2 pointers/references)
+
+suppose we have 10->20->30->40->50 then we have to find 2nd node from end
+then fake first pointer and move it n steps forward
+then take second pointer from start and move both pointer one by one
+so when first will reach at null then second will reach at nth from end
+so n=2 then first is at 30 and second is at 10
+move till first is null then second will reach at 40 for sure
+case when n is greater than number of nodes then if during iteration first becomes null then we return -1
+
+public static int nthNodeUsingTwoPointers(SLNode head, int n) {         // Time - O(n) Space - O(1)
+        if (head == null || n < 1) {
+            return -1;
+        }
+        SLNode first = head;
+        for (int i = 0; i < n; i++) {
+            if (first == null) {             when n>number of nodes
+                return -1;
+            }
+            first = first.next;
+        }
+        SLNode second = head;
+        while (first != null) {
+            first = first.next;
+            second = second.next;
+        }
+        return second.data;
+    }
+	
+*************************************************************************************************************************************************
+
+Reverse of a LinkedList
+
+Iterative Method
+
+suppose we have   10->20->30->40->50
+lets suppose till 30 we reversed it so we have now 10<-20<-30->40->50
+so to reverse the link between 30 and 40 we need the hold of 30 
+and when the link is reversed then we need the hold of 40 
+so in order to do that we need 3 pointers curr left and right
+left is one behind curr and right is one ahead the curr
+first we move right one pointer ahead of curr
+then we make curr's next to left which is previous of curr so link is reversed 
+then we move left one step ahead i.e, make it curr 
+and then move curr one pointer ahead make it right and repeat till curr is null
+so at the end curr and next will be null for sure and left is our new head
+
+public static SLNode reverseItr(SLNode head) {             // Time - O(n) Space - O(1)
+        if (head == null || head.next == null) {
+            return null;
+        }
+        SLNode left = null;
+        SLNode curr = head;
+        while (curr != null) {
+            SLNode right = curr.next; // move right to one ahead so that we can have hold of next pointer when link will break
+            curr.next = left;    // break and reverse the link
+            left = curr;     // move left to one pointer ahead for next iteration
+            curr = right;   // move current to next
+        }
+        return left;    // it is now new head
+    }
+	
+Recursive Method
+
+in this method we assume that our list is reversed and only first node is left
+so we have 10->20<-30<-40 in which 40 is our new head
+so to reverse the last link we have to make 20 points to 10 
+lets say 20 is our restTail and 40 is our restHead
+at the end we have to return restHead but to get restTail we will save it in a variable which is head's next(current head)
+then we have to do head's next to null and restTail's head to head(current)
+at the end return restHead
+base case will be suppose we will call for null then it return null and if there is only one node then it will return that node
+
+public static SLNode reverseRec(SLNode head) {       // Time - O(n) Space - O(n)
+        if (head == null || head.next == null) {   // when list is empty or having single node
+            return head;
+        }
+        SLNode restHead = reverseRec(head.next);     // recursive call for upcoming list assuming that recursive function works fine
+        SLNode restTail = head.next;      // save the head's next to reverse the link 
+        head.next = null;        // make head points to null
+        restTail.next = head;       // reverse the link
+        return restHead;          return new head
+    }
+	
+Tail Recursive Method
+
+this is slight different than first method
+in this first we are reversing the list then calling for next 
+so we have to make hold of previous current and next
+we will send previous as the argument
+previous=left
+next=right
+
+public static SLNode reverseTailRec(SLNode head, SLNode left) {     // Time - O(n) Space - O(n)
+        if (head == null) {     //   when head is null means we had reversed all the list so left will be at new head same as iterative method
+            return left;
+        }
+        SLNode right = head.next;       // saving right as head's next means current's next
+        head.next = left;           // reversing the link
+        return reverseTailRec(right, head);    calling for next node so head is right now and left is head now
+    }
+	
+******************************************************************************************************************************************************
+
+Removal of Duplicate
+
+suppose we have 10->20->20->30->30->30->40
+so we iterate the nodes if we find the current and next node same then we ignore next node
+so we set current's next to current's next's next
+we do till the last element since we are accessing the next data we have to ensure that it is not null
+so loop will iterate till current's next is not null
+
+public static SLNode removeDuplicated(SLNode head) {          // Time - O(n) Space - O(1)
+        if (head == null || head.next == null) {   // for empty list or single node list
+            return head;
+        }
+        SLNode curr = head;
+        while (curr.next != null) {       //  till we get the last node since after that there is no node to compare with
+            if (curr.data == curr.next.data) {     //  comparing current and next data if same
+                curr.next = curr.next.next;      //  ignoring next's data
+            } else {
+                curr = curr.next;   // otherwise changing current to next value 
+            }
+        }
+        return head;
+    }
+	
+***************************************************************************************************************************************************
