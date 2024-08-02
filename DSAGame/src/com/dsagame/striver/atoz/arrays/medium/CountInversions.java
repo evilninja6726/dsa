@@ -3,6 +3,7 @@ package com.dsagame.striver.atoz.arrays.medium;
 public class CountInversions {
 	public static void main(String[] args) {
 		System.out.println(inversionCount(new long[] { 2, 4, 1, 3, 5 }, 5));
+		System.out.println(inversionCount(new long[] { 2, 3, 4, 1, 5 }, 5));
 	}
 
 	static long inversionCount(long arr[], int n) {
