@@ -2,30 +2,29 @@ package com.dsagame.striver.atoz.arrays.easy;
 
 public class MaxProductSubarray {
 	public static void main(String[] args) {
-		System.out.println(maxProduct(
-				new int[] { 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, -10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0 }));
+//		System.out.println(maxProduct(
+//				new int[] { 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, -10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0 }));
 
 		System.out.println(maxProductSubArray(
 				new int[] { 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, -10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0 }));
 
 	}
 
-	public static int maxProduct(int[] nums) {
-		int res = Integer.MIN_VALUE;
-		int prefix = 1, suffix = 1;
+	public int maxProduct(int[] nums) {
+		double res = Integer.MIN_VALUE;
+		double prefix = 1, suffix = 1;
 		for (int i = 0; i < nums.length; i++) {
+			prefix *= nums[i];
+			suffix *= nums[nums.length - i - 1];
+			res = Math.max(res, Math.max(prefix, suffix));
 			if (prefix == 0) {
 				prefix = 1;
 			}
 			if (suffix == 0) {
 				suffix = 1;
 			}
-			prefix *= nums[i];
-			suffix *= nums[nums.length - i - 1];
-			res = Math.max(res, Math.max(prefix, suffix));
-			System.out.println(prefix + " eg" + suffix);
 		}
-		return res;
+		return (int) res;
 	}
 
 	public static int maxProductSubArray(int[] arr) {
