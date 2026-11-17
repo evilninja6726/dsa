@@ -1,1 +1,13 @@
-DSAGAME/.idea/
+# Compiled Java bytecode & build outputs
+*.class
+**/out/
+target/
+build/
+
+# IDE & OS metadata
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
